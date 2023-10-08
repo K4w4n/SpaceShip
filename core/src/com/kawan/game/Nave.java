@@ -6,38 +6,37 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
 public class Nave implements Entity {
+    private SpriteBatch batch;
     private Texture texture = new Texture("spaceship.png");
     private Sprite sprit = new Sprite(texture);
     private float x = 0, y = 0;
     private final float velocity = 10;
     private int countDelayMissile = 0;
-    ArrayList<Missile> missiles = new ArrayList<Missile>();
+    private ArrayList<Missile> missiles = new ArrayList<Missile>();
 
-    public Sprite getSprite() {
-        return sprit;
-    }
-
-    public float getX() {
-        return x;
-    }
-
-    public float getY() {
-        return y;
-    }
-
-    public void move() {
-        if (countDelayMissile > 0) {
-            countDelayMissile--;
-        }
-
-        ArrayList<Missile> newMissiles = new ArrayList<Missile>();
+    @Override
+    public void setBatch(SpriteBatch batch) {
+        this.batch = batch;
         for (Missile missile : missiles) {
-            if (missile.getX() < Gdx.graphics.getWidth())
-                newMissiles.add(missile);
+            missile.setBatch(batch);
         }
-        missiles = newMissiles;
+    }
+
+    public ArrayList<Missile> getMissiles() {
+        return missiles;
+    }
+
+    public void update() {
+        move();
+        clearMissiles();
+        fireMissile();
+        updateMissiles();
+    }
+
+    private void move() {
         if (Gdx.input.isKeyPressed(Input.Keys.RIGHT) && (x + velocity + sprit.getWidth()) <= Gdx.graphics.getWidth()) {
             x += velocity;
         }
@@ -50,14 +49,44 @@ public class Nave implements Entity {
         if (Gdx.input.isKeyPressed(Input.Keys.DOWN) && y - velocity >= 0) {
             y -= velocity;
         }
-        if (Gdx.input.isKeyPressed(Input.Keys.SPACE) && countDelayMissile == 0) {
-            missiles.add(new Missile(x, y + sprit.getHeight() / 2));
+    }
+
+    private void clearMissiles() {
+        if (countDelayMissile > 0) {
+            countDelayMissile--;
+        }
+
+        ArrayList<Missile> newMissiles = new ArrayList<Missile>();
+        for (Missile missile : missiles) {
+            if (missile.getX() < Gdx.graphics.getWidth() && !missile.isDestroyed())
+                newMissiles.add(missile);
+        }
+        missiles = newMissiles;
+    }
+
+    private void fireMissile() {
+        boolean spacePressed = Gdx.input.isKeyPressed(Input.Keys.SPACE);
+        boolean reloadedMissiles = countDelayMissile == 0;
+        boolean fireMissile = spacePressed && reloadedMissiles;
+        if (fireMissile) {
+            Missile missile = new Missile(x, y + sprit.getHeight() / 2);
+            missile.setBatch(batch);
+            missiles.add(missile);
             countDelayMissile = 10;
         }
     }
 
-    public ArrayList<Missile> getMissiles() {
-        return missiles;
+    private void updateMissiles() {
+        for (Missile missile : missiles) {
+            missile.update();
+        }
+    }
+
+    public void draw() {
+        for (Missile missile : missiles) {
+            missile.draw();
+        }
+        batch.draw(sprit, x, y);
     }
 
     public void dispose() {

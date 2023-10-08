@@ -1,15 +1,14 @@
 package com.kawan.game;
 
-import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
 interface Entity {
-    public Sprite getSprite();
 
-    public float getX();
+    public void update();
 
-    public float getY();
-
-    public void move();
+    public void draw();
 
     public void dispose();
+
+    public void setBatch(SpriteBatch batch);
 }

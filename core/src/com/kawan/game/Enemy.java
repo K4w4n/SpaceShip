@@ -1,20 +1,26 @@
 package com.kawan.game;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
-public class Missile implements Entity {
+public class Enemy implements Entity {
     private SpriteBatch batch;
-    private Texture texture = new Texture("missile.png");
+    private Texture texture = new Texture("enemy.png");
     private Sprite sprit = new Sprite(texture);
     private float x = 0, y = 0;
-    private final float velocity = 30;
     private boolean destroyed = false;
 
-    Missile(float x, float y) {
-        this.x = x;
-        this.y = y - sprit.getHeight() / 2;
+    Enemy(int i, int j, SpriteBatch batch) {
+        this.x = Gdx.graphics.getWidth() + i * (texture.getWidth() + 50);
+        this.y = j * (texture.getHeight() + 50);
+        this.batch = batch;
+    }
+    
+    Enemy(int i, int j, int type) {
+        this.x = Gdx.graphics.getWidth() + i * (texture.getWidth() + 50);
+        this.y = j * (texture.getHeight() + 50);
     }
 
     @Override
@@ -30,32 +36,36 @@ public class Missile implements Entity {
         return y;
     }
 
-    float getWidth() {
-        return texture.getWidth();
-    }
-
-    float getHeight() {
+    public float getHeight() {
         return texture.getHeight();
     }
 
-    void destroy() {
-        destroyed = true;
+    public float getWidth() {
+        return texture.getWidth();
     }
 
     public boolean isDestroyed() {
         return destroyed;
     }
 
-    public void update() {
-        x += velocity;
+    void destroy() {
+        destroyed = true;
     }
 
+    @Override
+    public void update() {
+        x -= 5;
+    }
+
+    @Override
     public void draw() {
         if (!destroyed)
             batch.draw(sprit, x, y);
     }
 
+    @Override
     public void dispose() {
         texture.dispose();
     }
+
 }
